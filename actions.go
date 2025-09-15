@@ -100,8 +100,8 @@ type VaultDistributeAction struct {
 type UpdateLeverageAction struct {
 	Type     string `json:"type"     msgpack:"type"`
 	Asset    int    `json:"asset"    msgpack:"asset"`
-	Leverage int    `json:"leverage" msgpack:"leverage"`
 	IsCross  bool   `json:"isCross"  msgpack:"isCross"`
+	Leverage int    `json:"leverage" msgpack:"leverage"`
 }
 
 // UpdateIsolatedMarginAction represents isolated margin update

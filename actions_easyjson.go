@@ -869,10 +869,10 @@ func easyjsonB97b45a3DecodeGithubComIvanzh94GoHyperliquid10(in *jlexer.Lexer, ou
 			out.Type = string(in.String())
 		case "asset":
 			out.Asset = int(in.Int())
-		case "leverage":
-			out.Leverage = int(in.Int())
 		case "isCross":
 			out.IsCross = bool(in.Bool())
+		case "leverage":
+			out.Leverage = int(in.Int())
 		default:
 			in.SkipRecursive()
 		}
@@ -898,14 +898,14 @@ func easyjsonB97b45a3EncodeGithubComIvanzh94GoHyperliquid10(out *jwriter.Writer,
 		out.Int(int(in.Asset))
 	}
 	{
-		const prefix string = ",\"leverage\":"
-		out.RawString(prefix)
-		out.Int(int(in.Leverage))
-	}
-	{
 		const prefix string = ",\"isCross\":"
 		out.RawString(prefix)
 		out.Bool(bool(in.IsCross))
+	}
+	{
+		const prefix string = ",\"leverage\":"
+		out.RawString(prefix)
+		out.Int(int(in.Leverage))
 	}
 	out.RawByte('}')
 }
