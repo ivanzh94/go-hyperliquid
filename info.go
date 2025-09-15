@@ -46,7 +46,7 @@ func (i *Info) postTimeRangeRequest(
 	return resp, nil
 }
 
-func NewInfo(baseURL string, skipWS bool, meta *Meta, spotMeta *SpotMeta, opts ...InfoOpt) *Info {
+func NewInfo(baseURL string, skipWS bool, meta *Meta, spotMeta *SpotMeta, opts ...InfoOpt) (*Info, error) {
 	info := &Info{
 		coinToAsset:    make(map[string]int),
 		nameToCoin:     make(map[string]string),
@@ -68,7 +68,7 @@ func NewInfo(baseURL string, skipWS bool, meta *Meta, spotMeta *SpotMeta, opts .
 		var err error
 		meta, err = info.Meta()
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
 
@@ -76,7 +76,7 @@ func NewInfo(baseURL string, skipWS bool, meta *Meta, spotMeta *SpotMeta, opts .
 		var err error
 		spotMeta, err = info.SpotMeta()
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
 
@@ -95,7 +95,7 @@ func NewInfo(baseURL string, skipWS bool, meta *Meta, spotMeta *SpotMeta, opts .
 		info.assetToDecimal[asset] = spotMeta.Tokens[spotInfo.Tokens[0]].SzDecimals
 	}
 
-	return info
+	return info, nil
 }
 
 func parseMetaResponse(resp []byte) (*Meta, error) {
@@ -637,4 +637,28 @@ func (i *Info) PerpDexs() ([]string, error) {
 		return nil, fmt.Errorf("failed to unmarshal perp dexs: %w", err)
 	}
 	return result, nil
+}
+
+func (i *Info) SetCoinToAsset(coinToAsset map[string]int) {
+	i.coinToAsset = coinToAsset
+}
+
+func (i *Info) SetNameToCoin(nameToCoin map[string]string) {
+	i.nameToCoin = nameToCoin
+}
+
+func (i *Info) SetAssetToDecimal(assetToDecimal map[int]int) {
+	i.assetToDecimal = assetToDecimal
+}
+
+func (i *Info) CoinToAsset() map[string]int {
+	return i.coinToAsset
+}
+
+func (i *Info) NameToCoin() map[string]string {
+	return i.nameToCoin
+}
+
+func (i *Info) AssetToDecimal() map[int]int {
+	return i.assetToDecimal
 }

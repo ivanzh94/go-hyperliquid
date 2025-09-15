@@ -24,8 +24,9 @@ func NewExchange(
 	meta *Meta,
 	vaultAddr, accountAddr string,
 	spotMeta *SpotMeta,
+	info *Info,
 	opts ...ExchangeOpt,
-) *Exchange {
+) (*Exchange, error) {
 	ex := &Exchange{
 		privateKey:  privateKey,
 		vault:       vaultAddr,
@@ -46,9 +47,17 @@ func NewExchange(
 	}
 
 	ex.client = NewClient(baseURL, clientOpts...)
-	ex.info = NewInfo(baseURL, true, meta, spotMeta, infoOpts...)
+	if info == nil {
+		i, err := NewInfo(baseURL, true, meta, spotMeta, infoOpts...)
+		if err != nil {
+			return nil, err
+		}
+		ex.info = i
+	} else {
+		ex.info = info
+	}
 
-	return ex
+	return ex, nil
 }
 
 // nextNonce returns either the current timestamp in milliseconds or incremented by one to prevent duplicates

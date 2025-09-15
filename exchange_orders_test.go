@@ -33,14 +33,18 @@ func newExchange(key string, url string) (*Exchange, error) {
 		return nil, fmt.Errorf("error casting public key to ECDSA")
 	}
 	accountAddr := crypto.PubkeyToAddress(*pubECDSA).Hex()
-
-	exchange := NewExchange(
+	info, err := NewInfo(url, true, nil, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	exchange, err := NewExchange(
 		privateKey,
 		url,
 		nil, // Meta will be fetched automatically
 		"",
 		accountAddr,
 		nil, // SpotMeta will be fetched automatically
+		info,
 	)
 
 	return exchange, nil
