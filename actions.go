@@ -101,7 +101,7 @@ type UpdateLeverageAction struct {
 	Type     string `json:"type"     msgpack:"type"`
 	Asset    int    `json:"asset"    msgpack:"asset"`
 	Leverage int    `json:"leverage" msgpack:"leverage"`
-	IsCross  bool   `json:"isCross" msgpack:"isCross"`
+	IsCross  bool   `json:"isCross"  msgpack:"isCross"`
 }
 
 // UpdateIsolatedMarginAction represents isolated margin update
