@@ -8,6 +8,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/mailru/easyjson v0.9.0
+	github.com/sonirico/go-hyperliquid v0.11.1
 	github.com/sonirico/vago v0.9.0
 	github.com/sonirico/vago/lol v0.0.0-20250823171800-46ee1766e546
 	github.com/stretchr/testify v1.11.1
@@ -32,12 +33,9 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/procfs v0.17.0 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/supranational/blst v0.3.15 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
