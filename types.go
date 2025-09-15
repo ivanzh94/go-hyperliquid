@@ -551,3 +551,10 @@ type TxStatus struct {
 	Coin   string `json:"coin"`
 	Status string `json:"status"`
 }
+
+type UpdateLeverageResult struct {
+	Status   string `json:"status"`
+	Response struct {
+		Type string `json:"type"`
+	} `json:"response"`
+}

@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func (e *Exchange) UpdateLeverage(leverage int, name string, isCross bool) (*UserState, error) {
+func (e *Exchange) UpdateLeverage(leverage int, name string, isCross bool) (*UpdateLeverageResult, error) {
 	action := UpdateLeverageAction{
 		Type:     "updateLeverage",
 		Asset:    e.info.NameToAsset(name),
@@ -18,7 +18,7 @@ func (e *Exchange) UpdateLeverage(leverage int, name string, isCross bool) (*Use
 		Leverage: leverage,
 	}
 
-	var result UserState
+	var result UpdateLeverageResult
 	if err := e.executeAction(action, &result); err != nil {
 		return nil, err
 	}
