@@ -211,7 +211,7 @@ func SignL1Action(
 
 func SignUserSignedAction(
 	privateKey *ecdsa.PrivateKey,
-	action map[string]interface{},
+	action *map[string]interface{},
 	payloadTypes []apitypes.Type,
 	primaryType string,
 	isMainnet bool,
@@ -222,9 +222,17 @@ func SignUserSignedAction(
 	} else {
 		hlChain = "Testnet"
 	}
-	action["signatureChainId"] = "0x66eee"
-	action["hyperliquidChain"] = hlChain
-	data, err := UserSignedPayload(primaryType, payloadTypes, action)
+	(*action)["signatureChainId"] = "0x66eee"
+	(*action)["hyperliquidChain"] = hlChain
+
+	sigAction := map[string]interface{}{}
+	for _, signType := range payloadTypes {
+		if value, exists := (*action)[signType.Name]; exists {
+			sigAction[signType.Name] = value
+		}
+	}
+
+	data, err := UserSignedPayload(primaryType, payloadTypes, sigAction)
 	if err != nil {
 		return SignatureResult{}, fmt.Errorf("failed to create user signed payload: %w", err)
 	}
@@ -234,7 +242,7 @@ func SignUserSignedAction(
 // SignUsdClassTransferAction signs USD class transfer action
 func SignUsdClassTransferAction(
 	privateKey *ecdsa.PrivateKey,
-	action map[string]interface{},
+	action *map[string]interface{},
 	isMainnet bool,
 ) (SignatureResult, error) {
 	usdClassTransferSignTypes := []apitypes.Type{
