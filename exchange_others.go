@@ -211,7 +211,7 @@ func (e *Exchange) UsdClassTransfer(amount float64, toPerp bool) (*TransferRespo
 		"nonce":  nonce,
 	}
 
-	sig, err := SignUsdClassTransferAction(e.privateKey, action, e.client.baseURL == MainnetAPIURL)
+	sig, err := SignUsdClassTransferAction(e.privateKey, &action, e.client.baseURL == MainnetAPIURL)
 	if err != nil {
 		return nil, err
 	}
