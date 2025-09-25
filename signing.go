@@ -110,6 +110,38 @@ func l1Payload(phantomAgent map[string]any) apitypes.TypedData {
 	}
 }
 
+func UserSignedPayload(primaryType string, payloadTypes []apitypes.Type, action map[string]interface{}) (apitypes.TypedData, error) {
+	chainId, ok := action["signatureChainId"].(string)
+	if !ok {
+		return apitypes.TypedData{}, fmt.Errorf("signatureChainId must be a string")
+	}
+
+	var hexChainId math.HexOrDecimal256
+	err := hexChainId.UnmarshalText([]byte(chainId))
+	if err != nil {
+		return apitypes.TypedData{}, fmt.Errorf("invalid chainId: %v", err)
+	}
+	return apitypes.TypedData{
+		Domain: apitypes.TypedDataDomain{
+			ChainId:           &hexChainId,
+			Name:              "HyperliquidSignTransaction",
+			Version:           "1",
+			VerifyingContract: "0x0000000000000000000000000000000000000000",
+		},
+		Types: apitypes.Types{
+			primaryType: payloadTypes,
+			"EIP712Domain": []apitypes.Type{
+				{Name: "name", Type: "string"},
+				{Name: "version", Type: "string"},
+				{Name: "chainId", Type: "uint256"},
+				{Name: "verifyingContract", Type: "address"},
+			},
+		},
+		PrimaryType: primaryType,
+		Message:     action,
+	}, nil
+}
+
 // SignatureResult represents the structured signature result
 type SignatureResult struct {
 	R string `json:"r"`
@@ -177,21 +209,47 @@ func SignL1Action(
 	return signInner(privateKey, typedData)
 }
 
+func SignUserSignedAction(
+	privateKey *ecdsa.PrivateKey,
+	action map[string]interface{},
+	payloadTypes []apitypes.Type,
+	primaryType string,
+	isMainnet bool,
+) (SignatureResult, error) {
+	var hlChain string
+	if isMainnet {
+		hlChain = "Mainnet"
+	} else {
+		hlChain = "Testnet"
+	}
+	action["signatureChainId"] = "0x66eee"
+	action["hyperliquidChain"] = hlChain
+	data, err := UserSignedPayload(primaryType, payloadTypes, action)
+	if err != nil {
+		return SignatureResult{}, fmt.Errorf("failed to create user signed payload: %w", err)
+	}
+	return signInner(privateKey, data)
+}
+
 // SignUsdClassTransferAction signs USD class transfer action
 func SignUsdClassTransferAction(
 	privateKey *ecdsa.PrivateKey,
-	amount float64,
-	toPerp bool,
-	timestamp int64,
+	action map[string]interface{},
 	isMainnet bool,
 ) (SignatureResult, error) {
-	action := map[string]any{
-		"type":   "usdClassTransfer",
-		"amount": amount,
-		"toPerp": toPerp,
+	usdClassTransferSignTypes := []apitypes.Type{
+		{Name: "hyperliquidChain", Type: "string"},
+		{Name: "amount", Type: "string"},
+		{Name: "toPerp", Type: "bool"},
+		{Name: "nonce", Type: "uint64"},
 	}
-
-	return SignL1Action(privateKey, action, "", timestamp, nil, isMainnet)
+	return SignUserSignedAction(
+		privateKey,
+		action,
+		usdClassTransferSignTypes,
+		"HyperliquidTransaction:UsdClassTransfer",
+		isMainnet,
+	)
 }
 
 // SignSpotTransferAction signs spot transfer action

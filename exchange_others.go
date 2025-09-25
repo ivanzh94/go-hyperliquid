@@ -200,27 +200,18 @@ func (e *Exchange) CreateSubAccount(name string) (*CreateSubAccountResponse, err
 // UsdClassTransfer transfers between USD classes
 func (e *Exchange) UsdClassTransfer(amount float64, toPerp bool) (*TransferResponse, error) {
 	nonce := e.nextNonce()
-
 	strAmount := formatFloat(amount)
 	if e.vault != "" {
 		strAmount += " subaccount:" + e.vault
 	}
-
-	action := UsdClassTransferAction{
-		Type:   "usdClassTransfer",
-		Amount: strAmount,
-		ToPerp: toPerp,
-		Nonce:  nonce,
+	action := map[string]interface{}{
+		"type":   "usdClassTransfer",
+		"amount": strAmount,
+		"toPerp": toPerp,
+		"nonce":  nonce,
 	}
 
-	sig, err := SignL1Action(
-		e.privateKey,
-		action,
-		e.vault,
-		nonce,
-		e.expiresAfter,
-		e.client.baseURL == MainnetAPIURL,
-	)
+	sig, err := SignUsdClassTransferAction(e.privateKey, action, e.client.baseURL == MainnetAPIURL)
 	if err != nil {
 		return nil, err
 	}
