@@ -558,3 +558,19 @@ type UpdateLeverageResult struct {
 		Type string `json:"type"`
 	} `json:"response"`
 }
+
+type UsdClassTransferResult struct {
+	Status   string `json:"status"`
+	Response struct {
+		Type string `json:"type"`
+	} `json:"response"`
+}
+
+type StatusResponse struct {
+	Status string `json:"status"`
+}
+
+type ErrorResponse struct {
+	Status   string `json:"status"`
+	Response string `json:"response"`
+}

@@ -110,23 +110,16 @@ func l1Payload(phantomAgent map[string]any) apitypes.TypedData {
 	}
 }
 
-func UserSignedPayload(primaryType string, payloadTypes []apitypes.Type, action map[string]interface{}) (apitypes.TypedData, error) {
-	chainId, ok := action["signatureChainId"].(string)
-	if !ok {
-		return apitypes.TypedData{}, fmt.Errorf("signatureChainId must be a string")
-	}
-
-	var hexChainId math.HexOrDecimal256
-	err := hexChainId.UnmarshalText([]byte(chainId))
-	if err != nil {
-		return apitypes.TypedData{}, fmt.Errorf("invalid chainId: %v", err)
-	}
+func UserSignedPayload(primaryType string, payloadTypes []apitypes.Type, action map[string]interface{}, chainId string) (apitypes.TypedData, error) {
+	bigInt := new(big.Int)
+	bigInt.SetString(chainId, 0)
+	hexChainId := math.HexOrDecimal256(*bigInt)
 	return apitypes.TypedData{
 		Domain: apitypes.TypedDataDomain{
 			ChainId:           &hexChainId,
 			Name:              "HyperliquidSignTransaction",
-			Version:           "1",
 			VerifyingContract: "0x0000000000000000000000000000000000000000",
+			Version:           "1",
 		},
 		Types: apitypes.Types{
 			primaryType: payloadTypes,
@@ -222,7 +215,8 @@ func SignUserSignedAction(
 	} else {
 		hlChain = "Testnet"
 	}
-	(*action)["signatureChainId"] = "0x66eee"
+	chainId := "0x66eee"
+	(*action)["signatureChainId"] = chainId
 	(*action)["hyperliquidChain"] = hlChain
 
 	sigAction := map[string]interface{}{}
@@ -232,7 +226,7 @@ func SignUserSignedAction(
 		}
 	}
 
-	data, err := UserSignedPayload(primaryType, payloadTypes, sigAction)
+	data, err := UserSignedPayload(primaryType, payloadTypes, sigAction, chainId)
 	if err != nil {
 		return SignatureResult{}, fmt.Errorf("failed to create user signed payload: %w", err)
 	}

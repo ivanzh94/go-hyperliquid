@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"sort"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -198,17 +199,18 @@ func (e *Exchange) CreateSubAccount(name string) (*CreateSubAccountResponse, err
 }
 
 // UsdClassTransfer transfers between USD classes
-func (e *Exchange) UsdClassTransfer(amount float64, toPerp bool) (*TransferResponse, error) {
+func (e *Exchange) UsdClassTransfer(amount float64, toPerp bool) (*UsdClassTransferResult, error) {
 	nonce := e.nextNonce()
 	strAmount := formatFloat(amount)
 	if e.vault != "" {
 		strAmount += " subaccount:" + e.vault
 	}
+
 	action := map[string]interface{}{
 		"type":   "usdClassTransfer",
 		"amount": strAmount,
 		"toPerp": toPerp,
-		"nonce":  nonce,
+		"nonce":  big.NewInt(nonce),
 	}
 
 	sig, err := SignUsdClassTransferAction(e.privateKey, &action, e.client.baseURL == MainnetAPIURL)
@@ -220,12 +222,23 @@ func (e *Exchange) UsdClassTransfer(amount float64, toPerp bool) (*TransferRespo
 	if err != nil {
 		return nil, err
 	}
-
-	var result TransferResponse
-	if err := json.Unmarshal(resp, &result); err != nil {
+	var status StatusResponse
+	if err := json.Unmarshal(resp, &status); err != nil {
 		return nil, err
 	}
-	return &result, nil
+
+	if status.Status != "ok" {
+		var errorResp ErrorResponse
+		if err := json.Unmarshal(resp, &errorResp); err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf(errorResp.Response)
+	}
+	var usdClassTResp UsdClassTransferResult
+	if err := json.Unmarshal(resp, &usdClassTResp); err != nil {
+		return nil, err
+	}
+	return &usdClassTResp, nil
 }
 
 // SubAccountTransfer transfers funds to/from sub-account
